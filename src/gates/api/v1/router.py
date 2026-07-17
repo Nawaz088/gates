@@ -13,6 +13,7 @@ from gates.domains.api_keys.router import router as api_keys_router
 from gates.domains.blocklist.router import router as blocklist_router
 from gates.domains.email_addresses.router import router as email_router
 from gates.domains.impersonation.service import impersonate
+from gates.domains.jwt_templates.router import router as jwt_templates_router
 from gates.domains.mfa.router import router as mfa_router
 from gates.domains.oauth.router import router as oauth_router
 from gates.domains.oauth_idp.router import router as oauth_idp_router
@@ -53,6 +54,7 @@ router.include_router(orgs_router)
 router.include_router(passkeys_router)
 router.include_router(saml_router)
 router.include_router(oidc_router)
+router.include_router(jwt_templates_router)
 router.include_router(webhooks_router)
 
 

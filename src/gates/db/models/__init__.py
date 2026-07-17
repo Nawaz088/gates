@@ -5,6 +5,7 @@ from gates.db.models.blocklist import Blocklist
 from gates.db.models.email_address import EmailAddress
 from gates.db.models.external_account import ExternalAccount
 from gates.db.models.instance import Instance
+from gates.db.models.jwt_template import JwtTemplate
 from gates.db.models.mfa_factor import MfaFactor
 from gates.db.models.oauth_application import OAuthApplication
 from gates.db.models.oauth_consent import OAuthConsent
@@ -31,6 +32,7 @@ __all__ = [
     "EmailAddress",
     "ExternalAccount",
     "Instance",
+    "JwtTemplate",
     "MfaFactor",
     "OAuthApplication",
     "OAuthConsent",
