@@ -32,8 +32,16 @@ async def create_user(
     private_metadata: dict[str, Any] | None = None,
     unsafe_metadata: dict[str, Any] | None = None,
     external_id: str | None = None,
+    anonymous: bool = False,
 ) -> User:
     instance_id = await ensure_default_instance(db)
+
+    if anonymous:
+        user = User(instance_id=instance_id)
+        db.add(user)
+        await db.commit()
+        await db.refresh(user)
+        return user
 
     if email:
         existing = await db.execute(

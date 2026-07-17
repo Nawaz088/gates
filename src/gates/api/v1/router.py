@@ -10,7 +10,9 @@ from gates.api.v1.verifications import router as verifications_router
 from gates.core.auth import get_current_session
 from gates.db.session import get_session
 from gates.domains.api_keys.router import router as api_keys_router
+from gates.domains.blocklist.router import router as blocklist_router
 from gates.domains.email_addresses.router import router as email_router
+from gates.domains.impersonation.service import impersonate
 from gates.domains.mfa.router import router as mfa_router
 from gates.domains.oauth.router import router as oauth_router
 from gates.domains.oidc.router import router as oidc_router
@@ -40,6 +42,7 @@ router.include_router(users_router)
 router.include_router(email_router)
 router.include_router(sessions_router)
 router.include_router(api_keys_router)
+router.include_router(blocklist_router)
 router.include_router(phone_router)
 router.include_router(verifications_router)
 router.include_router(mfa_router)
@@ -57,6 +60,7 @@ class SignUpRequest(BaseModel):
     first_name: str | None = None
     last_name: str | None = None
     username: str | None = Field(None, min_length=3, max_length=32)
+    strategy: str | None = None
 
 
 class SignInRequest(BaseModel):
@@ -91,6 +95,7 @@ async def sign_up(
     body: SignUpRequest,
     db: AsyncSession = Depends(get_session),
 ) -> dict[str, Any]:
+    anonymous = body.strategy == "anonymous"
     email = body.email_address[0] if body.email_address else None
     user = await create_user(
         db,
@@ -99,6 +104,7 @@ async def sign_up(
         username=body.username,
         first_name=body.first_name,
         last_name=body.last_name,
+        anonymous=anonymous,
     )
     await issue_session_tokens(
         response, db,
@@ -142,6 +148,17 @@ async def sign_out(
 ) -> dict[str, Any]:
     await logout(response, db, auth["session_id"])
     return {"status": "signed_out"}
+
+
+@router.post("/users/{user_id}/impersonate")
+async def api_impersonate(
+    user_id: str,
+    response: Response,
+    db: AsyncSession = Depends(get_session),
+    auth: dict[str, Any] = Depends(get_current_session),
+) -> dict[str, Any]:
+    result = await impersonate(db, auth["user_id"], user_id, response)
+    return result
 
 
 @router.post("/passwords/reset")
