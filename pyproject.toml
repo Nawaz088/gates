@@ -1,0 +1,72 @@
+[project]
+name = "gates"
+version = "0.1.0"
+description = "Self-hostable authentication platform — Clerk alternative"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.6.0",
+    "sqlalchemy[asyncio]>=2.0.36",
+    "asyncpg>=0.30.0",
+    "alembic>=1.14.0",
+    "redis[hiredis]>=5.2.0",
+    "arq>=0.26.0",
+    "argon2-cffi>=23.1.0",
+    "cryptography>=44.0.0",
+    "pyjwt>=2.10.0",
+    "authlib>=1.4.0",
+    "pyotp>=2.9.0",
+    "webauthn>=2.2.0",
+    "python3-saml>=1.16.0",
+    "httpx>=0.28.0",
+    "jinja2>=3.1.0",
+    "python-multipart>=0.0.19",
+    "boto3>=1.36.0",
+    "twilio>=9.4.0",
+    "email-validator>=2.3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.8.0",
+    "mypy>=1.14.0",
+    "respx>=0.22.0",
+    "time-machine>=2.16.0",
+    "playwright>=1.49.0",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "SIM", "ARG", "C4", "RUF"]
+ignore = ["B008"]  # B008: Depends() in function defaults is standard FastAPI
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.mypy]
+strict = true
+python_version = "3.12"
+ignore_missing_imports = true
+disallow_untyped_defs = true
+disallow_any_unimported = false
+warn_unused_ignores = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests", "src/gates"]
+python_files = ["test_*.py", "*_test.py"]
+
+[build-system]
+requires = ["setuptools>=75.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
