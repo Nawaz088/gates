@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ title or "Gates" }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+  <header class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="/" class="text-xl font-bold text-gray-900">Gates</a>
+      <nav class="flex gap-4 text-sm">
+        {% if session %}
+          <a href="/user/profile" class="text-gray-600 hover:text-gray-900">Profile</a>
+          <a href="/org/select" class="text-gray-600 hover:text-gray-900">Organizations</a>
+          <form action="/v1/sign_outs" method="post" class="inline">
+            <button type="submit" class="text-gray-600 hover:text-gray-900">Sign out</button>
+          </form>
+        {% else %}
+          <a href="/sign-in" class="text-gray-600 hover:text-gray-900">Sign in</a>
+          <a href="/sign-up" class="text-gray-600 hover:text-gray-900">Sign up</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+  <main class="flex-1 flex items-center justify-center p-4">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

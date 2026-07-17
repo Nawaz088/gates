@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+from gates.api.hosted import router as hosted_router
 from gates.api.v1.router import router as v1_router
 from gates.core.errors import GatesError
 
@@ -41,6 +42,7 @@ async def gates_error_handler(_request: Request, exc: GatesError) -> JSONRespons
 
 
 app.include_router(v1_router)
+app.include_router(hosted_router)
 
 
 @app.get("/health")
