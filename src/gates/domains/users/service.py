@@ -18,6 +18,7 @@ from gates.core.instance import ensure_default_instance, get_instance_id
 from gates.core.security import hash_password, random_token_str, verify_password
 from gates.db.models.email_address import EmailAddress
 from gates.db.models.user import User
+from gates.webhooks.service import dispatch_event
 
 
 async def create_user(
@@ -83,6 +84,7 @@ async def create_user(
 
     await db.commit()
     await db.refresh(user)
+    await dispatch_event(db, "user.created", {"id": user.id, "instance_id": user.instance_id})
     return user
 
 
@@ -180,6 +182,7 @@ async def update_user(
 
     await db.commit()
     await db.refresh(user)
+    await dispatch_event(db, "user.updated", {"id": user.id})
     return user
 
 
@@ -187,6 +190,7 @@ async def delete_user(db: AsyncSession, user_id: str) -> None:
     user = await get_user(db, user_id)
     await db.delete(user)
     await db.commit()
+    await dispatch_event(db, "user.deleted", {"id": user_id})
 
 
 async def ban_user(db: AsyncSession, user_id: str, reason: str | None = None) -> User:

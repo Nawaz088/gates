@@ -24,11 +24,13 @@ from gates.domains.users.service import (
     request_password_reset,
     reset_password,
 )
+from gates.webhooks.router import router as webhooks_router
 
 router = APIRouter(prefix="/v1")
 router.include_router(users_router)
 router.include_router(email_router)
 router.include_router(sessions_router)
+router.include_router(webhooks_router)
 
 
 class SignUpRequest(BaseModel):

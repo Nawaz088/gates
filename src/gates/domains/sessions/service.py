@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import timedelta
 
 from fastapi import Response
-from sqlalchemy import select, update
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from gates.core.auth import (
@@ -20,6 +20,7 @@ from gates.core.clock import now
 from gates.core.errors import UnauthorizedError
 from gates.core.instance import get_instance_id
 from gates.db.models.session import Session
+from gates.webhooks.service import dispatch_event
 
 
 async def create_session(
@@ -44,6 +45,7 @@ async def create_session(
     db.add(session)
     await db.commit()
     await db.refresh(session)
+    await dispatch_event(db, "session.created", {"id": session.id, "user_id": session.user_id})
     return session
 
 
@@ -75,13 +77,13 @@ async def touch_session(db: AsyncSession, session_id: str) -> Session | None:
 
 
 async def revoke_session(db: AsyncSession, session_id: str) -> None:
-    await db.execute(
-        update(Session)
-        .where(Session.id == session_id)
-        .values(status="revoked")
-    )
+    session = await db.get(Session, session_id)
+    if session is None:
+        return
+    session.status = "revoked"
     await db.commit()
     await cache_delete(f"session:{session_id}:refresh")
+    await dispatch_event(db, "session.revoked", {"id": session_id, "user_id": session.user_id})
 
 
 async def revoke_all_sessions(
@@ -107,13 +109,13 @@ async def revoke_all_sessions(
 
 
 async def end_session(db: AsyncSession, session_id: str) -> None:
-    await db.execute(
-        update(Session)
-        .where(Session.id == session_id)
-        .values(status="ended")
-    )
+    session = await db.get(Session, session_id)
+    if session is None:
+        return
+    session.status = "ended"
     await db.commit()
     await cache_delete(f"session:{session_id}:refresh")
+    await dispatch_event(db, "session.ended", {"id": session_id, "user_id": session.user_id})
 
 
 async def refresh_session(

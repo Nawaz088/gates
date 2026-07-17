@@ -10,6 +10,7 @@ from gates.core.errors import ConflictError, NotFoundError, ValidationError
 from gates.core.instance import get_instance_id
 from gates.core.security import random_token_str
 from gates.db.models.email_address import EmailAddress
+from gates.webhooks.service import dispatch_event
 
 
 async def add_email(
@@ -39,6 +40,10 @@ async def add_email(
     db.add(email_addr)
     await db.commit()
     await db.refresh(email_addr)
+    await dispatch_event(
+        db, "email.created",
+        {"id": email_addr.id, "user_id": user_id, "email": email},
+    )
     return email_addr
 
 
@@ -62,6 +67,10 @@ async def verify_email(db: AsyncSession, email_id: str, token: str) -> EmailAddr
     email_addr.verification_token_expires_at = None
     await db.commit()
     await db.refresh(email_addr)
+    await dispatch_event(
+        db, "email.verified",
+        {"id": email_addr.id, "user_id": email_addr.user_id, "email": email_addr.email},
+    )
     return email_addr
 
 
@@ -69,8 +78,11 @@ async def remove_email(db: AsyncSession, email_id: str) -> None:
     email_addr = await db.get(EmailAddress, email_id)
     if email_addr is None:
         raise NotFoundError(message="Email address not found.")
+    user_id = email_addr.user_id
+    email = email_addr.email
     await db.delete(email_addr)
     await db.commit()
+    await dispatch_event(db, "email.deleted", {"id": email_id, "user_id": user_id, "email": email})
 
 
 async def list_user_emails(

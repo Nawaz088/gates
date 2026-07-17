@@ -1,0 +1,35 @@
+from __future__ import annotations
+
+EVENTS: list[str] = [
+    "user.created",
+    "user.updated",
+    "user.deleted",
+    "user.banned",
+    "user.unbanned",
+    "session.created",
+    "session.revoked",
+    "session.ended",
+    "email.created",
+    "email.verified",
+    "email.deleted",
+    "phone.created",
+    "phone.verified",
+    "phone.deleted",
+    "passkey.created",
+    "passkey.deleted",
+    "organization.created",
+    "organization.updated",
+    "organization.deleted",
+    "organizationMembership.created",
+    "organizationMembership.updated",
+    "organizationMembership.deleted",
+    "organizationInvitation.created",
+    "organizationInvitation.accepted",
+    "organizationInvitation.revoked",
+    "mfaFactor.enabled",
+    "mfaFactor.disabled",
+    "apiKey.created",
+    "apiKey.deleted",
+]
+
+EVENT_SET = frozenset(EVENTS)
