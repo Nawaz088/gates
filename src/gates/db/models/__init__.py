@@ -5,6 +5,7 @@ from gates.db.models.email_address import EmailAddress
 from gates.db.models.external_account import ExternalAccount
 from gates.db.models.instance import Instance
 from gates.db.models.mfa_factor import MfaFactor
+from gates.db.models.passkey import Passkey
 from gates.db.models.phone_number import PhoneNumber
 from gates.db.models.session import Session
 from gates.db.models.user import User
@@ -20,6 +21,7 @@ __all__ = [
     "ExternalAccount",
     "Instance",
     "MfaFactor",
+    "Passkey",
     "PhoneNumber",
     "Session",
     "User",

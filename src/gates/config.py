@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6379/0"
 
     # Crypto
-    field_encryption_key: str = ""
+    field_encryption_key: str = "2Ls4lQ5ipyUU-tcY6524ys6PRN0G1FDCjr4sM4J-iFs="
     jwt_signing_key: str = "dev-test-key-that-is-at-least-32-bytes-long!!"
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 60
