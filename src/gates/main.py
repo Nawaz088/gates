@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 from gates.api.hosted import router as hosted_router
 from gates.api.v1.router import router as v1_router
 from gates.core.errors import GatesError
+from gates.core.middleware import setup_middleware
 
 
 @asynccontextmanager
@@ -22,6 +23,8 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
+
+setup_middleware(app)
 
 
 @app.exception_handler(GatesError)
