@@ -11,6 +11,7 @@ from gates.core.auth import get_current_session
 from gates.db.session import get_session
 from gates.domains.api_keys.router import router as api_keys_router
 from gates.domains.email_addresses.router import router as email_router
+from gates.domains.phone_numbers.router import router as phone_router
 from gates.domains.sessions.router import router as sessions_router
 from gates.domains.sessions.service import (
     issue_session_tokens,
@@ -33,6 +34,7 @@ router.include_router(users_router)
 router.include_router(email_router)
 router.include_router(sessions_router)
 router.include_router(api_keys_router)
+router.include_router(phone_router)
 router.include_router(verifications_router)
 router.include_router(webhooks_router)
 

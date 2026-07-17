@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import hashlib
 
-from gates.domains.otp.service import _hash_code
 from gates.domains.magic_links.service import _hash_token
+from gates.domains.otp.service import _hash_code
 
 
 class TestOTP:
