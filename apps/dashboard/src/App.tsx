@@ -5,6 +5,7 @@ import { Users } from "./pages/Users";
 import { Sessions } from "./pages/Sessions";
 import { ApiKeys } from "./pages/ApiKeys";
 import { Webhooks } from "./pages/Webhooks";
+import { AuditLog } from "./pages/AuditLog";
 
 export function App() {
   return (
@@ -16,6 +17,7 @@ export function App() {
           <Route path="/sessions" element={<Sessions />} />
           <Route path="/api-keys" element={<ApiKeys />} />
           <Route path="/webhooks" element={<Webhooks />} />
+          <Route path="/audit-log" element={<AuditLog />} />
         </Routes>
       </Layout>
     </BrowserRouter>

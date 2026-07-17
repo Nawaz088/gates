@@ -7,6 +7,7 @@ const navItems = [
   { path: "/sessions", label: "Sessions", icon: "🔑" },
   { path: "/api-keys", label: "API Keys", icon: "🔐" },
   { path: "/webhooks", label: "Webhooks", icon: "🔔" },
+  { path: "/audit-log", label: "Audit Log", icon: "📋" },
 ];
 
 export function Layout({ children }: { children: ReactNode }) {
