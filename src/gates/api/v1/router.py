@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, Request, Response
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from gates.api.v1.verifications import router as verifications_router
 from gates.core.auth import get_current_session
 from gates.db.session import get_session
 from gates.domains.api_keys.router import router as api_keys_router
@@ -32,6 +33,7 @@ router.include_router(users_router)
 router.include_router(email_router)
 router.include_router(sessions_router)
 router.include_router(api_keys_router)
+router.include_router(verifications_router)
 router.include_router(webhooks_router)
 
 

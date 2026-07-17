@@ -4,6 +4,7 @@ from gates.db.models.email_address import EmailAddress
 from gates.db.models.instance import Instance
 from gates.db.models.session import Session
 from gates.db.models.user import User
+from gates.db.models.verification import Verification
 from gates.db.models.webhook_delivery import WebhookDelivery
 from gates.db.models.webhook_endpoint import WebhookEndpoint
 
@@ -14,6 +15,7 @@ __all__ = [
     "Instance",
     "Session",
     "User",
+    "Verification",
     "WebhookDelivery",
     "WebhookEndpoint",
 ]
