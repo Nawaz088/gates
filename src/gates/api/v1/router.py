@@ -2,12 +2,19 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request, Response
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from gates.core.auth import get_current_session
 from gates.db.session import get_session
 from gates.domains.email_addresses.router import router as email_router
+from gates.domains.sessions.router import router as sessions_router
+from gates.domains.sessions.service import (
+    issue_session_tokens,
+    logout,
+    refresh_session,
+)
 from gates.domains.users.router import router as users_router
 from gates.domains.users.schemas import UserResponse
 from gates.domains.users.service import (
@@ -21,6 +28,7 @@ from gates.domains.users.service import (
 router = APIRouter(prefix="/v1")
 router.include_router(users_router)
 router.include_router(email_router)
+router.include_router(sessions_router)
 
 
 class SignUpRequest(BaseModel):
@@ -31,11 +39,6 @@ class SignUpRequest(BaseModel):
     username: str | None = Field(None, min_length=3, max_length=32)
 
 
-class SignUpResponse(BaseModel):
-    status: str = "complete"
-    user: UserResponse | None = None
-
-
 class SignInRequest(BaseModel):
     identifier: str
     password: str
@@ -44,14 +47,11 @@ class SignInRequest(BaseModel):
 class SignInResponse(BaseModel):
     status: str = "complete"
     user: UserResponse | None = None
+    session_id: str = ""
 
 
 class PasswordResetRequest(BaseModel):
     email: EmailStr
-
-
-class PasswordResetResponse(BaseModel):
-    status: str = "complete"
 
 
 class PasswordResetConfirmRequest(BaseModel):
@@ -65,12 +65,9 @@ class PasswordChangeRequest(BaseModel):
     new_password: str = Field(..., min_length=8, max_length=128)
 
 
-class PasswordChangeResponse(BaseModel):
-    status: str = "complete"
-
-
 @router.post("/sign_ups")
 async def sign_up(
+    response: Response,
     body: SignUpRequest,
     db: AsyncSession = Depends(get_session),
 ) -> dict[str, Any]:
@@ -83,16 +80,48 @@ async def sign_up(
         first_name=body.first_name,
         last_name=body.last_name,
     )
-    return SignUpResponse(user=UserResponse.model_validate(user)).model_dump()
+    await issue_session_tokens(
+        response, db,
+        user_id=user.id,
+        email=email,
+        username=user.username,
+    )
+    return {
+        "status": "complete",
+        "user": UserResponse.model_validate(user).model_dump(),
+    }
 
 
 @router.post("/sign_ins")
 async def sign_in(
+    response: Response,
+    request: Request,
     body: SignInRequest,
     db: AsyncSession = Depends(get_session),
 ) -> dict[str, Any]:
     user = await authenticate_user(db, body.identifier, body.password)
-    return SignInResponse(user=UserResponse.model_validate(user)).model_dump()
+    await issue_session_tokens(
+        response, db,
+        user_id=user.id,
+        email=user.primary_email_id,
+        username=user.username,
+        ip_address=request.client.host if request.client else None,
+        user_agent=request.headers.get("user-agent"),
+    )
+    return {
+        "status": "complete",
+        "user": UserResponse.model_validate(user).model_dump(),
+    }
+
+
+@router.post("/sign_outs")
+async def sign_out(
+    response: Response,
+    db: AsyncSession = Depends(get_session),
+    auth: dict[str, Any] = Depends(get_current_session),
+) -> dict[str, Any]:
+    await logout(response, db, auth["session_id"])
+    return {"status": "signed_out"}
 
 
 @router.post("/passwords/reset")
@@ -101,7 +130,7 @@ async def password_reset_request(
     db: AsyncSession = Depends(get_session),
 ) -> dict[str, Any]:
     await request_password_reset(db, body.email)
-    return PasswordResetResponse().model_dump()
+    return {"status": "complete"}
 
 
 @router.post("/passwords/reset/confirm")
@@ -110,17 +139,31 @@ async def password_reset_confirm(
     db: AsyncSession = Depends(get_session),
 ) -> dict[str, Any]:
     await reset_password(db, body.email, body.token, body.new_password)
-    return PasswordChangeResponse().model_dump()
+    return {"status": "complete"}
 
 
 @router.post("/passwords/change")
 async def password_change(
     body: PasswordChangeRequest,
     db: AsyncSession = Depends(get_session),
-    user_id: str = "TODO",
+    auth: dict[str, Any] = Depends(get_current_session),
 ) -> dict[str, Any]:
-    await change_password(db, user_id, body.current_password, body.new_password)
-    return PasswordChangeResponse().model_dump()
+    await change_password(db, auth["user_id"], body.current_password, body.new_password)
+    return {"status": "complete"}
+
+
+@router.post("/tokens")
+async def exchange_refresh_token(
+    response: Response,
+    request: Request,
+    db: AsyncSession = Depends(get_session),
+) -> dict[str, Any]:
+    refresh_token = request.cookies.get("__session_refresh")
+    session = await refresh_session(response, db, refresh_token)
+    return {
+        "status": "refreshed",
+        "session_id": session.id,
+    }
 
 
 @router.get("/health")

@@ -26,7 +26,7 @@ class Settings(BaseSettings):
 
     # Crypto
     field_encryption_key: str = ""
-    jwt_signing_key: str = ""
+    jwt_signing_key: str = "dev-test-key-that-is-at-least-32-bytes-long!!"
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 60
     refresh_token_expire_days: int = 60
