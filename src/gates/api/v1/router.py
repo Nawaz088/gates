@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from gates.core.auth import get_current_session
 from gates.db.session import get_session
+from gates.domains.api_keys.router import router as api_keys_router
 from gates.domains.email_addresses.router import router as email_router
 from gates.domains.sessions.router import router as sessions_router
 from gates.domains.sessions.service import (
@@ -30,6 +31,7 @@ router = APIRouter(prefix="/v1")
 router.include_router(users_router)
 router.include_router(email_router)
 router.include_router(sessions_router)
+router.include_router(api_keys_router)
 router.include_router(webhooks_router)
 
 

@@ -114,6 +114,29 @@ async def get_current_session(
     if not token:
         raise UnauthorizedError(message="No session token provided.")
 
+    from gates.domains.api_keys.service import authenticate_api_key
+
+    if token.startswith("gates_"):
+        api_key = await authenticate_api_key(db, token)
+        if api_key is None:
+            raise UnauthorizedError(message="Invalid or revoked API key.")
+
+        api_key.last_used_at = now()
+        await db.commit()
+
+        return {
+            "user_id": api_key.created_by or "",
+            "session_id": f"apikey:{api_key.id}",
+            "fva": None,
+            "org_id": None,
+            "org_role": None,
+            "org_permissions": [],
+            "scopes": api_key.scopes,
+            "email": None,
+            "username": None,
+            "auth_type": "api_key",
+        }
+
     try:
         payload = decode_jwt(token)
     except Exception:
@@ -138,6 +161,8 @@ async def get_current_session(
         "org_id": payload.get("org_id"),
         "org_role": payload.get("org_role"),
         "org_permissions": payload.get("org_permissions", []),
+        "scopes": [],
         "email": payload.get("email"),
         "username": payload.get("username"),
+        "auth_type": "session",
     }
