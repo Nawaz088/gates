@@ -1,0 +1,33 @@
+{
+  "name": "@gates/nextjs",
+  "version": "0.1.0",
+  "description": "Gates helpers for Next.js App Router",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "peerDependencies": {
+    "next": "^14.0.0",
+    "react": "^18.0.0"
+  },
+  "dependencies": {
+    "@gates/react": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "@types/react": "^18.3.0",
+    "next": "^14.0.0",
+    "react": "^18.3.0"
+  }
+}
