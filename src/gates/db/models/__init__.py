@@ -6,6 +6,8 @@ from gates.db.models.email_address import EmailAddress
 from gates.db.models.external_account import ExternalAccount
 from gates.db.models.instance import Instance
 from gates.db.models.mfa_factor import MfaFactor
+from gates.db.models.oauth_application import OAuthApplication
+from gates.db.models.oauth_consent import OAuthConsent
 from gates.db.models.oidc_connection import OIDCConnection
 from gates.db.models.organization import Organization
 from gates.db.models.organization_domain import OrganizationDomain
@@ -30,6 +32,8 @@ __all__ = [
     "ExternalAccount",
     "Instance",
     "MfaFactor",
+    "OAuthApplication",
+    "OAuthConsent",
     "OIDCConnection",
     "Organization",
     "OrganizationDomain",
